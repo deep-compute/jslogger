@@ -74,7 +74,7 @@
             }
 
             if(count > maxLogs) {
-                ajaxCall();
+                ajaxCall();     // flush logs to server side.
                 count = 0;
             }
             return;
@@ -170,7 +170,7 @@
             var startTime = new Date().getTime(),
                 xhr       = ($.ajax(data));
 
-            xhr.success(function() {
+            xhr.done(function() {
                 xhrStatus('ajax success', data.url, xhr, startTime, true);
             });
 
@@ -186,7 +186,7 @@
 
             var startTime = new Date().getTime(),
                 xhr       = $.getJSON(req_url, fun);
-            xhr.success(function() {
+            xhr.done(function() {
                 xhrStatus('getJSON success', req_url, xhr, startTime, true);
             });
 
@@ -202,7 +202,7 @@
 
             var startTime = new Date().getTime(),
                 xhr       = $.get(req_url, fun);
-            xhr.success(function() {
+            xhr.done(function() {
                 xhrStatus('get request success', req_url, xhr, startTime, true);
             });
 
@@ -218,7 +218,7 @@
 
             var startTime = new Date().getTime(),
                 xhr       = $.post(req_url, fun);
-            xhr.success(function() {
+            xhr.done(function() {
                 xhrStatus('post request success', req_url, xhr, startTime, true);
             });
 
@@ -237,9 +237,7 @@
             }
         }
 
-        /**
-         * Send pending logs to url which is provided by checking logs that are being logged.
-         */
+        // Send pending logs to url which is provided by checking logs that are being logged.
         function flushPendingLogs() {
 
             isAjaxCompleted  = false;
@@ -267,7 +265,7 @@
                 log : data,
             }
 
-            var xhr = ajax({
+            var xhr = $.ajax({
                 url     : url,
                 type    : 'POST',
                 data    : JSON.stringify(params),

@@ -5,12 +5,12 @@ Jslogger need jquery to be imported.
 ## Usage
 Download the src/jslogger-bundle.js and copy to desired location.
 Include jslogger.js in your page using below code.
-```javascript=
+```javascript
 <script type="text/javascript" src="jslogger-bundle.js"></script>
 ```
 ## Initialize jslogger in your webpage
 Initializing jslogger.js
-```javascript=
+```javascript
 <script type="text/javascript">
     var log = new jslogger({url:url, max_logs:max_logs, time_ms:time_ms});
 </script>
@@ -20,13 +20,13 @@ Initializing jslogger.js
 - time_ms - At what time interval all the logs needs to be checked and sent to server (optional default 5000ms).
 
 Jslogger can bind user(string), if it is a login based website, by using:
-```javascript=
+```javascript
 log.bind({user:user, key:'additional info about user'})
 ```
 The additional information will be logged with the key specified.
 
 Jslogger supports the following console methods for logging in below way:
-```javascript=
+```javascript
 log.message(message, {data:"anykind of data"});
 log.info(message, {data:"anykind of data"});
 log.log(message, {data:"anykind of data"});
@@ -40,7 +40,7 @@ log.info('testing log.info', {data:(new Date()).getTime()})
 ```
 Jslogger can log exceptions using log.exception
 #### Example
-```javascript=
+```javascript
 try {
     throw new Error('testing jslogger');
 }
@@ -50,7 +50,7 @@ catch(e){
 ```
 ## Log ajax calls
 - Jslogger can log ajax calls by calling a function as **log.ajax** similar to **$.ajax** but in addition to it, jslogger log the time taken, start time, end time, ajax url, etc.
-```javascript=
+```javascript
 log.ajax({
     url: url,
     type: GET/POST,
@@ -63,7 +63,7 @@ log.ajax({
 Jslogger even logs ajax call failure automatically.
 
 - Can log getJSON calls by calling a function as **log.getJSON** instead of **$.getJSON**
-```javascript=
+```javascript
  log.getJSON(url, function(response){
       // your code goes here
  })
@@ -73,9 +73,9 @@ Jslogger even logs ajax call failure automatically.
 - When ever there is a javascript error it captures and logs it.
 - It uses localstorage in browser to store all the logs, even if the browser crashes the logs will not be destroyed. They will be logged to server when the page loads again.
 - Jslogger uses Epoch time(Unix time) for logging.
-#### server side
+## Server side
 - The logs will be logged via ajax call in post method with a variable **log**. The server side script should be able to take the request with argument **log**. Below is a example of form data for ajax call.
-```javascript=
+```javascript
 {
 log:[
         {
