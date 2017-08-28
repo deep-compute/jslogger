@@ -69,9 +69,6 @@
 
             count += 1;
             window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
-            if(maxLogs == 0) {
-                return;
-            }
 
             if(count > maxLogs) {
                 ajaxCall();     // flush logs to server side.
@@ -240,6 +237,7 @@
         // Send pending logs to url which is provided by checking logs that are being logged.
         function flushPendingLogs() {
 
+            count = 0;
             isAjaxCompleted  = false;
             var pending_logs = 0,
                 data         = [],
@@ -277,9 +275,9 @@
                 },
             });
 
-            xhr.done(function(response) {
+            xhr.always(function(response) {
 
-                pending_logs -= 100;
+                pending_logs -= data.length;
                 if(pending_logs > 0) {
                     flushPendingLogs();
                 }
