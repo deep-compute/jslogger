@@ -141,24 +141,27 @@
 
         function xhrStatus(msg, req_url, xhr, startTime, is_call_success) {
 
-            var endTime = new Date().getTime(),
-                data   = {
-                status          : xhr.status,
-                ready_state     : xhr.readyState,
-                status_message  : xhr.statusText,
-                url             : req_url,
-                start_time_ms   : startTime,
-                end_time_ms     : endTime,
-                request_time_ms : endTime-startTime,
-                response_length : xhr.responseText.length
-            }
+            try{
+                var endTime = new Date().getTime(),
+                    data   = {
+                    status          : xhr.status,
+                    ready_state     : xhr.readyState,
+                    status_message  : xhr.statusText,
+                    url             : req_url,
+                    start_time_ms   : startTime,
+                    end_time_ms     : endTime,
+                    request_time_ms : endTime-startTime,
+                    response_length : xhr.responseText.length
+                }
 
-            if(!is_call_success) {
-                data.response = xhr.responseText.substring(0,2000);
-            }
+                if(!is_call_success) {
+                    data.response = xhr.responseText.substring(0,2000);
+                }
 
-            common({message:msg, misc:data});
-            return;
+                common({message:msg, misc:data});
+                return;
+            }
+            catch(err) {}
         }
 
         // Log ajax call
