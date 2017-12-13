@@ -263,7 +263,7 @@
             }
 
             var params = {
-                log : data,
+                logs : data,
             }
 
             var xhr = $.ajax({

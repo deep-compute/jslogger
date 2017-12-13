@@ -74,7 +74,7 @@ Jslogger even logs ajax call failure automatically.
 - It uses localstorage in browser to store all the logs, even if the browser crashes the logs will not be destroyed. They will be logged to server when the page loads again.
 - Jslogger uses Epoch time(Unix time) for logging.
 ## Server side
-- The logs will be logged via ajax call in post method with a variable **log**. The server side script should be able to take the request with argument **log**. Below is a example of form data for ajax call.
+- The logs will be logged via ajax call in post method with a variable **logs**. The server side script should be able to take the request with argument **logs**. Below is a example of form data for ajax call.
 ```javascript
 {
 log:[
