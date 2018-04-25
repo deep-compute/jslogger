@@ -151,7 +151,7 @@
                     start_time_ms   : startTime,
                     end_time_ms     : endTime,
                     request_time_ms : endTime-startTime,
-                    response_length : xhr.responseText.length
+                    response_length : xhr.responseText && xhr.responseText.length
                 }
 
                 if(!is_call_success) {
@@ -175,7 +175,7 @@
             });
 
             xhr.fail(function() {
-                xhrStatus('ajax success', data.url, xhr, startTime, false);
+                xhrStatus('ajax failed', data.url, xhr, startTime, false);
             });
 
             return xhr;
