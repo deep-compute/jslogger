@@ -1,0 +1,6 @@
+before_install:
+- pip3 install black
+language:
+- python
+script:
+- black --check .
