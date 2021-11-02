@@ -7,6 +7,10 @@ exports["default"] = void 0;
 
 var _uuid = require("uuid");
 
+var _axios = _interopRequireDefault(require("axios"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -123,7 +127,6 @@ var jsLogger = /*#__PURE__*/function () {
     value: function info() {
       var href = typeof window !== "undefined" && window === null ? window.location.href : "";
       this.log_data("info", arguments[0], href, arguments[1]);
-      console.info(arguments[0]);
       return;
     }
   }, {
@@ -131,7 +134,6 @@ var jsLogger = /*#__PURE__*/function () {
     value: function error() {
       var href = typeof window !== "undefined" && window === null ? window.location.href : "";
       this.log_data("exception", arguments[0], href, arguments[1]);
-      console.error(arguments[0]);
       return;
     }
   }, {
@@ -139,7 +141,6 @@ var jsLogger = /*#__PURE__*/function () {
     value: function debug() {
       var href = typeof window !== "undefined" && window === null ? window.location.href : "";
       this.log_data("debug", arguments[0], href, arguments[1]);
-      console.debug(arguments[0]);
       return;
     }
   }, {
@@ -147,7 +148,6 @@ var jsLogger = /*#__PURE__*/function () {
     value: function log() {
       var href = typeof window !== "undefined" && window === null ? window.location.href : "";
       this.log_data("log", arguments[0], href, arguments[1]);
-      console.log(arguments[0]);
       return;
     }
   }, {
@@ -155,7 +155,6 @@ var jsLogger = /*#__PURE__*/function () {
     value: function warn() {
       var href = typeof window !== "undefined" && window === null ? window.location.href : "";
       this.log_data("warn", arguments[0], href, arguments[1]);
-      console.warn(arguments[0]);
       return;
     }
   }, {
@@ -170,7 +169,6 @@ var jsLogger = /*#__PURE__*/function () {
     value: function exception() {
       var href = typeof window !== "undefined" && window === null ? window.location.href : "";
       this.log_data("exception", arguments[0], href, arguments[1]);
-      console.error(arguments[0]);
       return;
     }
   }, {
@@ -227,6 +225,8 @@ var jsLogger = /*#__PURE__*/function () {
         for (var i in window.localStorage) {
           pending_logs = i.startsWith("logging") ? pending_logs + 1 : pending_logs;
         }
+      } else {
+        pending_logs = this.logs;
       }
 
       if (pending_logs === 0) {
@@ -253,11 +253,11 @@ var jsLogger = /*#__PURE__*/function () {
       var params = {
         logs: data
       };
-      var xhr = fetch(this.url, {
+      var xhr = (0, _axios["default"])(this.url, {
         method: "POST",
-        body: JSON.stringify(params),
+        data: JSON.stringify(params),
         timeout: 1000 * 60 * 10
-      }).then(function () {
+      }).then(function (res) {
         for (var _key_index2 in log_keys) {
           if (typeof window !== "undefined" && window !== null) {
             delete window.localStorage[log_keys[_key_index2]];
@@ -317,7 +317,7 @@ var jsLogger = /*#__PURE__*/function () {
         host_url: host,
         coverage_id: ""
       };
-      fetch("/file_server/upload", {
+      (0, _axios["default"])("/file_server/upload", {
         method: "POST",
         body: JSON.stringify(window.__coverage__)
       }).then(function (res) {

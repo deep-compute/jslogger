@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 class jsLogger {
   constructor(req) {
@@ -94,7 +95,6 @@ class jsLogger {
         ? window.location.href
         : "";
     this.log_data("info", arguments[0], href, arguments[1]);
-    console.info(arguments[0]);
     return;
   }
 
@@ -104,7 +104,6 @@ class jsLogger {
         ? window.location.href
         : "";
     this.log_data("exception", arguments[0], href, arguments[1]);
-    console.error(arguments[0]);
     return;
   }
 
@@ -114,7 +113,6 @@ class jsLogger {
         ? window.location.href
         : "";
     this.log_data("debug", arguments[0], href, arguments[1]);
-    console.debug(arguments[0]);
     return;
   }
 
@@ -133,7 +131,6 @@ class jsLogger {
         ? window.location.href
         : "";
     this.log_data("warn", arguments[0], href, arguments[1]);
-    console.warn(arguments[0]);
     return;
   }
 
@@ -152,7 +149,6 @@ class jsLogger {
         ? window.location.href
         : "";
     this.log_data("exception", arguments[0], href, arguments[1]);
-    console.error(arguments[0]);
     return;
   }
   constructBody(msg) {}
@@ -200,6 +196,8 @@ class jsLogger {
           ? pending_logs + 1
           : pending_logs;
       }
+    } else {
+      pending_logs = this.logs;
     }
 
     if (pending_logs === 0) {
@@ -226,11 +224,12 @@ class jsLogger {
     let params = {
       logs: data,
     };
-    let xhr = fetch(this.url, {
+
+    let xhr = axios(this.url, {
       method: "POST",
-      body: JSON.stringify(params),
+      data: JSON.stringify(params),
       timeout: 1000 * 60 * 10,
-    }).then(() => {
+    }).then((res) => {
       for (let key_index in log_keys) {
         if (typeof window !== "undefined" && window !== null) {
           delete window.localStorage[log_keys[key_index]];
@@ -291,7 +290,7 @@ class jsLogger {
         host_url: host,
         coverage_id: "",
       };
-    fetch("/file_server/upload", {
+    axios("/file_server/upload", {
       method: "POST",
       body: JSON.stringify(window.__coverage__),
     })
