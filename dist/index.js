@@ -7,6 +7,10 @@ exports["default"] = void 0;
 
 var _uuid = require("uuid");
 
+var _axios = _interopRequireDefault(require("axios"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -35,9 +39,11 @@ var jsLogger = /*#__PURE__*/function () {
 
     this.extraData = req.extraData;
     this.user = null;
+    this.host = req.host || "";
     this.user_detail = null;
     this.isAjaxCompleted = true;
     this.mode = (req === null || req === void 0 ? void 0 : req.mode) || "info";
+    this.logs = [];
     setInterval(function () {
       return _this.ajaxCall();
     }, this.timeInterval);
@@ -57,7 +63,7 @@ var jsLogger = /*#__PURE__*/function () {
     value: function common(options) {
       var time = new Date(); // TODO use window.location.host
 
-      var source = window.location.host;
+      var source = typeof window !== "undefined" && window === null ? window.location.host : this.host;
 
       var data = _objectSpread({
         UUID: (0, _uuid.v4)(),
@@ -87,7 +93,12 @@ var jsLogger = /*#__PURE__*/function () {
     key: "appender",
     value: function appender(data) {
       this.count += 1;
-      window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
+
+      if (typeof window !== "undefined" && window !== null) {
+        window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
+      } else {
+        this.logs.push(JSON.stringify(data));
+      }
 
       if (this.count > this.maxLogs) {
         this.ajaxCall(); // flush logs to server side.
@@ -104,7 +115,7 @@ var jsLogger = /*#__PURE__*/function () {
       var data = {
         type: level,
         message: msg,
-        url: url,
+        url: url !== null && url !== void 0 ? url : "",
         misc: misc
       };
       this.common(data);
@@ -114,49 +125,50 @@ var jsLogger = /*#__PURE__*/function () {
   }, {
     key: "info",
     value: function info() {
-      this.log_data("info", arguments[0], window.location.href, arguments[1]);
-      console.info(arguments[0]);
+      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      this.log_data("info", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "error",
     value: function error() {
-      this.log_data("exception", arguments[0], window.location.href, arguments[1]);
-      console.error(arguments[0]);
+      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      this.log_data("exception", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "debug",
     value: function debug() {
-      this.log_data("debug", arguments[0], window.location.href, arguments[1]);
-      console.debug(arguments[0]);
+      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      this.log_data("debug", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "log",
     value: function log() {
-      this.log_data("log", arguments[0], window.location.href, arguments[1]);
-      console.log(arguments[0]);
+      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      this.log_data("log", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "warn",
     value: function warn() {
-      this.log_data("warn", arguments[0], window.location.href, arguments[1]);
-      console.warn(arguments[0]);
+      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      this.log_data("warn", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "msg",
     value: function msg() {
-      this.log_data("msg", arguments[0], window.location.href, arguments[1]);
+      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      this.log_data("msg", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "exception",
     value: function exception() {
-      this.log_data("exception", arguments[0], window.location.href, arguments[1]);
-      console.error(arguments[0]);
+      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      this.log_data("exception", arguments[0], href, arguments[1]);
       return;
     }
   }, {
@@ -209,8 +221,12 @@ var jsLogger = /*#__PURE__*/function () {
           data = [],
           log_keys = [];
 
-      for (var i in window.localStorage) {
-        pending_logs = i.startsWith("logging") ? pending_logs + 1 : pending_logs;
+      if (typeof window !== "undefined" && window !== null) {
+        for (var i in window.localStorage) {
+          pending_logs = i.startsWith("logging") ? pending_logs + 1 : pending_logs;
+        }
+      } else {
+        pending_logs = this.logs;
       }
 
       if (pending_logs === 0) {
@@ -218,23 +234,36 @@ var jsLogger = /*#__PURE__*/function () {
         return;
       }
 
-      for (var key_index in window.localStorage) {
-        if (key_index.startsWith("logging") && data.length < 1000) {
-          data.push(JSON.parse(window.localStorage.getItem(key_index)));
-          log_keys.push(key_index);
+      if (typeof window !== "undefined" && window !== null) {
+        for (var key_index in window.localStorage) {
+          if (key_index.startsWith("logging") && data.length < 1000) {
+            data.push(JSON.parse(window.localStorage.getItem(key_index)));
+            log_keys.push(key_index);
+          }
+        }
+      } else {
+        for (var _key_index in this.logs) {
+          if (data.length < 1000) {
+            data.push(JSON.parse(this.logs[_key_index]));
+            log_keys.push(_key_index);
+          }
         }
       }
 
       var params = {
         logs: data
       };
-      var xhr = fetch(this.url, {
+      var xhr = (0, _axios["default"])(this.url, {
         method: "POST",
-        body: JSON.stringify(params),
+        data: JSON.stringify(params),
         timeout: 1000 * 60 * 10
-      }).then(function () {
-        for (var _key_index in log_keys) {
-          delete window.localStorage[log_keys[_key_index]];
+      }).then(function (res) {
+        for (var _key_index2 in log_keys) {
+          if (typeof window !== "undefined" && window !== null) {
+            delete window.localStorage[log_keys[_key_index2]];
+          } else {
+            _this2.logs.splice(_key_index2, 1);
+          }
         }
       });
       xhr["finally"](function (response) {
@@ -253,7 +282,12 @@ var jsLogger = /*#__PURE__*/function () {
     value: function capptureClickEvent() {
       var _this3 = this;
 
+      if (typeof window === "undefined" || window === null) {
+        return;
+      }
+
       document.body.addEventListener("click", function (e) {
+        var href = typeof window !== "undefined" && window === null ? window.location.href : "";
         var time = new Date(),
             data = {
           UUID: (0, _uuid.v4)(),
@@ -261,7 +295,7 @@ var jsLogger = /*#__PURE__*/function () {
           message: "event_click",
           level: "debug",
           target: e.target.innerHTML,
-          url: window.location.href
+          url: href
         };
 
         _this3.appender(data);
@@ -273,16 +307,17 @@ var jsLogger = /*#__PURE__*/function () {
     value: function windowCoverage() {
       var _this4 = this;
 
+      var host = typeof window !== "undefined" && window === null ? window.location.host : "";
       var time = new Date(),
           data = {
         UUID: (0, _uuid.v4)(),
         timestamp: time.getTime(),
         message: "coverage_data",
         level: "info",
-        host_url: window.location.host,
+        host_url: host,
         coverage_id: ""
       };
-      fetch("/file_server/upload", {
+      (0, _axios["default"])("/file_server/upload", {
         method: "POST",
         body: JSON.stringify(window.__coverage__)
       }).then(function (res) {
@@ -300,6 +335,10 @@ var jsLogger = /*#__PURE__*/function () {
     key: "catchAllError",
     value: function catchAllError() {
       var _this5 = this;
+
+      if (typeof window === "undefined" || window === null) {
+        return;
+      }
 
       window.console = {
         log: function log(msg) {},

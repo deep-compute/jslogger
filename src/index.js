@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 class jsLogger {
   constructor(req) {
@@ -12,9 +13,11 @@ class jsLogger {
     //this.appender = appender;
     this.extraData = req.extraData;
     this.user = null;
+    this.host = req.host || "";
     this.user_detail = null;
     this.isAjaxCompleted = true;
     this.mode = req?.mode || "info";
+    this.logs = [];
     setInterval(() => this.ajaxCall(), this.timeInterval);
     this.mode === "debug" && this.capptureClickEvent();
   }
@@ -29,7 +32,10 @@ class jsLogger {
   common(options) {
     let time = new Date();
     // TODO use window.location.host
-    let source = window.location.host;
+    let source =
+      typeof window !== "undefined" && window === null
+        ? window.location.host
+        : this.host;
     let data = {
       UUID: uuidv4(),
       timestamp: time.getTime(),
@@ -38,7 +44,7 @@ class jsLogger {
       url: options.url,
       host_url: source,
       misc: options.misc,
-      ...this.extraData
+      ...this.extraData,
     };
 
     if (this.user != null) {
@@ -57,7 +63,11 @@ class jsLogger {
   // store data to localStorage
   appender(data) {
     this.count += 1;
-    window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
+    if (typeof window !== "undefined" && window !== null) {
+      window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
+    } else {
+      this.logs.push(JSON.stringify(data));
+    }
 
     if (this.count > this.maxLogs) {
       this.ajaxCall(); // flush logs to server side.
@@ -71,8 +81,8 @@ class jsLogger {
     let data = {
       type: level,
       message: msg,
-      url: url,
-      misc: misc
+      url: url ?? "",
+      misc: misc,
     };
     this.common(data);
     return;
@@ -80,53 +90,65 @@ class jsLogger {
 
   // Log different kinds of console logging methods
   info() {
-    this.log_data("info", arguments[0], window.location.href, arguments[1]);
-    console.info(arguments[0]);
+    let href =
+      typeof window !== "undefined" && window === null
+        ? window.location.href
+        : "";
+    this.log_data("info", arguments[0], href, arguments[1]);
     return;
   }
 
   error() {
-    this.log_data(
-      "exception",
-      arguments[0],
-      window.location.href,
-      arguments[1]
-    );
-    console.error(arguments[0]);
+    let href =
+      typeof window !== "undefined" && window === null
+        ? window.location.href
+        : "";
+    this.log_data("exception", arguments[0], href, arguments[1]);
     return;
   }
 
   debug() {
-    this.log_data("debug", arguments[0], window.location.href, arguments[1]);
-    console.debug(arguments[0]);
+    let href =
+      typeof window !== "undefined" && window === null
+        ? window.location.href
+        : "";
+    this.log_data("debug", arguments[0], href, arguments[1]);
     return;
   }
 
   log() {
-    this.log_data("log", arguments[0], window.location.href, arguments[1]);
-    console.log(arguments[0]);
+    let href =
+      typeof window !== "undefined" && window === null
+        ? window.location.href
+        : "";
+    this.log_data("log", arguments[0], href, arguments[1]);
     return;
   }
 
   warn() {
-    this.log_data("warn", arguments[0], window.location.href, arguments[1]);
-    console.warn(arguments[0]);
+    let href =
+      typeof window !== "undefined" && window === null
+        ? window.location.href
+        : "";
+    this.log_data("warn", arguments[0], href, arguments[1]);
     return;
   }
 
   msg() {
-    this.log_data("msg", arguments[0], window.location.href, arguments[1]);
+    let href =
+      typeof window !== "undefined" && window === null
+        ? window.location.href
+        : "";
+    this.log_data("msg", arguments[0], href, arguments[1]);
     return;
   }
 
   exception() {
-    this.log_data(
-      "exception",
-      arguments[0],
-      window.location.href,
-      arguments[1]
-    );
-    console.error(arguments[0]);
+    let href =
+      typeof window !== "undefined" && window === null
+        ? window.location.href
+        : "";
+    this.log_data("exception", arguments[0], href, arguments[1]);
     return;
   }
   constructBody(msg) {}
@@ -141,7 +163,7 @@ class jsLogger {
           start_time_ms: startTime,
           end_time_ms: endTime,
           request_time_ms: endTime - startTime,
-          response_length: xhr.responseText && xhr.responseText.length
+          response_length: xhr.responseText && xhr.responseText.length,
         };
 
       if (!is_call_success) {
@@ -168,8 +190,14 @@ class jsLogger {
       data = [],
       log_keys = [];
 
-    for (let i in window.localStorage) {
-      pending_logs = i.startsWith("logging") ? pending_logs + 1 : pending_logs;
+    if (typeof window !== "undefined" && window !== null) {
+      for (let i in window.localStorage) {
+        pending_logs = i.startsWith("logging")
+          ? pending_logs + 1
+          : pending_logs;
+      }
+    } else {
+      pending_logs = this.logs;
     }
 
     if (pending_logs === 0) {
@@ -177,27 +205,41 @@ class jsLogger {
       return;
     }
 
-    for (let key_index in window.localStorage) {
-      if (key_index.startsWith("logging") && data.length < 1000) {
-        data.push(JSON.parse(window.localStorage.getItem(key_index)));
-        log_keys.push(key_index);
+    if (typeof window !== "undefined" && window !== null) {
+      for (let key_index in window.localStorage) {
+        if (key_index.startsWith("logging") && data.length < 1000) {
+          data.push(JSON.parse(window.localStorage.getItem(key_index)));
+          log_keys.push(key_index);
+        }
+      }
+    } else {
+      for (let key_index in this.logs) {
+        if (data.length < 1000) {
+          data.push(JSON.parse(this.logs[key_index]));
+          log_keys.push(key_index);
+        }
       }
     }
 
     let params = {
-      logs: data
+      logs: data,
     };
-    let xhr = fetch(this.url, {
+
+    let xhr = axios(this.url, {
       method: "POST",
-      body: JSON.stringify(params),
-      timeout: 1000 * 60 * 10
-    }).then(() => {
+      data: JSON.stringify(params),
+      timeout: 1000 * 60 * 10,
+    }).then((res) => {
       for (let key_index in log_keys) {
-        delete window.localStorage[log_keys[key_index]];
+        if (typeof window !== "undefined" && window !== null) {
+          delete window.localStorage[log_keys[key_index]];
+        } else {
+          this.logs.splice(key_index, 1);
+        }
       }
     });
 
-    xhr.finally(response => {
+    xhr.finally((response) => {
       pending_logs -= data.length;
       if (pending_logs > 0) {
         this.flushPendingLogs();
@@ -208,9 +250,16 @@ class jsLogger {
 
   //Capture click events
   capptureClickEvent() {
+    if (typeof window === "undefined" || window === null) {
+      return;
+    }
     document.body.addEventListener(
       "click",
-      e => {
+      (e) => {
+        let href =
+          typeof window !== "undefined" && window === null
+            ? window.location.href
+            : "";
         let time = new Date(),
           data = {
             UUID: uuidv4(),
@@ -218,7 +267,7 @@ class jsLogger {
             message: "event_click",
             level: "debug",
             target: e.target.innerHTML,
-            url: window.location.href
+            url: href,
           };
         this.appender(data);
       },
@@ -228,21 +277,25 @@ class jsLogger {
 
   // fetching coverage data
   windowCoverage() {
+    let host =
+      typeof window !== "undefined" && window === null
+        ? window.location.host
+        : "";
     let time = new Date(),
       data = {
         UUID: uuidv4(),
         timestamp: time.getTime(),
         message: "coverage_data",
         level: "info",
-        host_url: window.location.host,
-        coverage_id: ""
+        host_url: host,
+        coverage_id: "",
       };
-    fetch("/file_server/upload", {
+    axios("/file_server/upload", {
       method: "POST",
-      body: JSON.stringify(window.__coverage__)
+      body: JSON.stringify(window.__coverage__),
     })
-      .then(res => res.json())
-      .then(val => {
+      .then((res) => res.json())
+      .then((val) => {
         data["coverage_id"] = val.md5;
         this.appender(data);
       });
@@ -253,23 +306,26 @@ class jsLogger {
   // Time interval for sending logs to url
   // capture javascript errors
   catchAllError() {
+    if (typeof window === "undefined" || window === null) {
+      return;
+    }
     window.console = {
       log: function (msg) {},
       info: function (msg) {},
       warn: function (msg) {},
-      error: msg => {
+      error: (msg) => {
         let time = new Date(),
           data = {
             UUID: uuidv4(),
             timestamp: time.getTime(),
             message: msg,
             level: "error",
-            host_url: window.location.host
+            host_url: window.location.host,
           };
 
         this.appender(data);
         return;
-      }
+      },
     };
   }
 }
