@@ -18,10 +18,19 @@ class jsLogger {
     this.isAjaxCompleted = true;
     this.mode = req?.mode || "info";
     this.logs = [];
-    setInterval(() => this.ajaxCall(), this.timeInterval);
+    this.interval = "";
     this.mode === "debug" && this.capptureClickEvent();
   }
 
+  startCheck() {
+    if (this.interval) return;
+    this.interval = setInterval(() => this.ajaxCall(), this.timeInterval);
+  }
+  endCheck() {
+    if (!this.interval) return;
+    clearInterval(this.interval);
+    this.setInterval = "";
+  }
   bind(req) {
     this.user = req.user;
     delete req.user;
@@ -62,6 +71,7 @@ class jsLogger {
 
   // store data to localStorage
   appender(data) {
+    this.startCheck();
     this.count += 1;
     if (typeof window !== "undefined" && window !== null) {
       window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
@@ -87,7 +97,6 @@ class jsLogger {
     this.common(data);
     return;
   }
-
   // Log different kinds of console logging methods
   info() {
     let href =
@@ -200,8 +209,9 @@ class jsLogger {
       pending_logs = this.logs;
     }
 
-    if (pending_logs === 0) {
+    if (pending_logs.length === 0) {
       this.isAjaxCompleted = true;
+      this.endCheck();
       return;
     }
 
