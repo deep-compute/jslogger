@@ -25,8 +25,6 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var jsLogger = /*#__PURE__*/function () {
   function jsLogger(req) {
-    var _this = this;
-
     _classCallCheck(this, jsLogger);
 
     this.queue = 0;
@@ -44,13 +42,28 @@ var jsLogger = /*#__PURE__*/function () {
     this.isAjaxCompleted = true;
     this.mode = (req === null || req === void 0 ? void 0 : req.mode) || "info";
     this.logs = [];
-    setInterval(function () {
-      return _this.ajaxCall();
-    }, this.timeInterval);
+    this.interval = "";
     this.mode === "debug" && this.capptureClickEvent();
   }
 
   _createClass(jsLogger, [{
+    key: "startCheck",
+    value: function startCheck() {
+      var _this = this;
+
+      if (this.interval) return;
+      this.interval = setInterval(function () {
+        return _this.ajaxCall();
+      }, this.timeInterval);
+    }
+  }, {
+    key: "endCheck",
+    value: function endCheck() {
+      if (!this.interval) return;
+      clearInterval(this.interval);
+      this.setInterval = "";
+    }
+  }, {
     key: "bind",
     value: function bind(req) {
       this.user = req.user;
@@ -92,6 +105,7 @@ var jsLogger = /*#__PURE__*/function () {
   }, {
     key: "appender",
     value: function appender(data) {
+      this.startCheck();
       this.count += 1;
 
       if (typeof window !== "undefined" && window !== null) {
@@ -229,8 +243,9 @@ var jsLogger = /*#__PURE__*/function () {
         pending_logs = this.logs;
       }
 
-      if (pending_logs === 0) {
+      if (pending_logs.length === 0) {
         this.isAjaxCompleted = true;
+        this.endCheck();
         return;
       }
 
