@@ -24,7 +24,11 @@ class jsLogger {
 
   startCheck() {
     if (this.interval) return;
-    this.interval = setInterval(() => this.ajaxCall(), this.timeInterval);
+    this.interval = setInterval(() => {
+      //FIXME: replace with one function for bind and also calling
+      this.ajaxCall.bind(this);
+      this.ajaxCall();
+    }, this.timeInterval);
   }
   endCheck() {
     if (!this.interval) return;
@@ -211,7 +215,7 @@ class jsLogger {
 
     if (!pending_logs || pending_logs === 0) {
       this.isAjaxCompleted = true;
-      this.endCheck();
+      //this.endCheck();
       return;
     }
 
