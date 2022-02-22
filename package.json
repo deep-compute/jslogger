@@ -1,11 +1,12 @@
 {
-  "name": "jslogger",
-  "version": "0.0.1",
+  "name": "@nudjur/js-logger",
+  "version": "0.0.4",
   "description": "To add structured logs in your node project",
   "main": "dist/index.js",
   "directories": {
     "example": "example"
   },
+  "registry-url": "https://registry.npmjs.org/",
   "scripts": {
     "build": "npx babel src --out-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -28,5 +29,8 @@
     "@babel/cli": "^7.15.7",
     "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8"
-  }
+  },
+  "keywords": [
+    "js-logger"
+  ]
 }

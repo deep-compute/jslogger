@@ -53,7 +53,10 @@ var jsLogger = /*#__PURE__*/function () {
 
       if (this.interval) return;
       this.interval = setInterval(function () {
-        return _this.ajaxCall();
+        //FIXME: replace with one function for bind and also calling
+        _this.ajaxCall.bind(_this);
+
+        _this.ajaxCall();
       }, this.timeInterval);
     }
   }, {
@@ -244,8 +247,8 @@ var jsLogger = /*#__PURE__*/function () {
       }
 
       if (!pending_logs || pending_logs === 0) {
-        this.isAjaxCompleted = true;
-        this.endCheck();
+        this.isAjaxCompleted = true; //this.endCheck();
+
         return;
       }
 
