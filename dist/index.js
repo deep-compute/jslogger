@@ -243,7 +243,7 @@ var jsLogger = /*#__PURE__*/function () {
         pending_logs = this.logs;
       }
 
-      if (pending_logs.length === 0) {
+      if (!pending_logs || pending_logs === 0) {
         this.isAjaxCompleted = true;
         this.endCheck();
         return;
