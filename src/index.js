@@ -213,9 +213,9 @@ class jsLogger {
       pending_logs = this.logs;
     }
 
-    if (!pending_logs || pending_logs === 0) {
+    if (!pending_logs || pending_logs === 0 || pending_logs.length === 0) {
       this.isAjaxCompleted = true;
-      //this.endCheck();
+      this.endCheck();
       return;
     }
 
