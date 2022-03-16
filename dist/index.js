@@ -305,7 +305,7 @@ var jsLogger = /*#__PURE__*/function () {
       }
 
       document.body.addEventListener("click", function (e) {
-        var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+        var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
         var time = new Date(),
             data = {
           UUID: (0, _uuid.v4)(),
