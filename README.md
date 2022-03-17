@@ -1,80 +1,64 @@
 # jslogger
-Logging Javascript logs to server.
-## Dependencies
-Jslogger need jquery to be imported.
+
+Logging javascript logs to server
+
 ## Usage
-Download the src/jslogger-bundle.js and copy to desired location.
-Include jslogger.js in your page using below code.
-```javascript
-<script type="text/javascript" src="jslogger-bundle.js"></script>
-```
-## Initialize jslogger in your webpage
-Initializing jslogger.js
-```javascript
-<script type="text/javascript">
-    var log = new jslogger({url:url, max_logs:max_logs, time_ms:time_ms});
-</script>
-```
-- url - Replace this with backend url where a function is listening for post request with a parameter **log**.
-- max_logs - Maximum number of logs to be packed and send to server at a time (optional default 1000).
-- time_ms - At what time interval all the logs needs to be checked and sent to server (optional default 5000ms).
 
-Jslogger can bind user(string), if it is a login based website, by using:
-```javascript
-log.bind({user:user, key:'additional info about user'})
-```
-The additional information will be logged with the key specified.
+You can install the jslogger using
 
-Jslogger supports the following console methods for logging in below way:
-```javascript
-log.message(message, {data:"anykind of data"});
-log.info(message, {data:"anykind of data"});
-log.log(message, {data:"anykind of data"});
-log.error(message, {data:"anykind of data"});
-log.debug(message, {data:"anykind of data"});
-log.warn(message, {data:"anykind of data"});
 ```
-#### Example
-```bash
-log.info('testing log.info', {data:(new Date()).getTime()})
+npm install @nudjur/js-logger
 ```
-Jslogger can log exceptions using log.exception
-#### Example
-```javascript
-try {
-    throw new Error('testing jslogger');
-}
-catch(e){
-    log.exception(e.message);
-}
+
+Once installed you can import it as below in your js file
+
 ```
-## Log ajax calls
-- Jslogger can log ajax calls by calling a function as **log.ajax** similar to **$.ajax** but in addition to it, jslogger log the time taken, start time, end time, ajax url, etc.
-```javascript
-log.ajax({
-    url: url,
-    type: GET/POST,
-    data: data,
-    success: function(response){
-        log.log('any message if needed' + {response: response});
-    }
+import jsLogger from "@nudjur/js-logger";
+
+export const log = new jsLogger({
+  url: <URL>,
+  mode: <MODE>
+  time_ms: <TIME_MS>
 });
 ```
-Jslogger even logs ajax call failure automatically.
 
-- Can log getJSON calls by calling a function as **log.getJSON** instead of **$.getJSON**
-```javascript
- log.getJSON(url, function(response){
-      // your code goes here
- })
+## Configuration
+
+1. url: The backend url where jslogger should send logs
+2. mode: Backend url run on different modes such as DEBUG, INFO where if it is DEBUG mode will write debug logs such as click event
+3. time_ms: jslogger store all logs in localstorage and keeps checking if logs present and push it so we can configure the frequency by this args default: 5sec
+4. maxLogs: jslogger will have a threshold that once a count of logs comes to localstorage it will start pushing we can adjust using this default : 1000
+
+## Contributing Guideline
+
+To contribute to the repo you clone the repo and create a new branch and start making changes in `src/index.js`.
+
+1. Once you are done making changes do update the `package.json`
+
 ```
-- Can also log **\$.get** and **\$.post** in the above manner using **log.get** and **log.post**
+version: "0.0.2" => "0.0.3"
+```
 
-- When ever there is a javascript error it captures and logs it.
-- It uses localstorage in browser to store all the logs, even if the browser crashes the logs will not be destroyed. They will be logged to server when the page loads again.
-- Jslogger uses Epoch time(Unix time) for logging.
+2. After updating version we will need to build also we can do that by using
+
+```
+npm run build
+```
+
+3. After this we can push all changes to branch and assign the maintainer for review
+
+4. Once pr is merged maintainer will have to release to npm he can do so by
+
+```
+npm publish --access public
+```
+
+**NOTE:-** We will need to be logged in node repo for nudjur
+
 ## Server side
-- The logs will be logged via ajax call in post method with a variable **logs**. The server side script should be able to take the request with argument **logs**. Below is a example of form data for ajax call.
+
+- The logs will be logged via axios call in post method with a variable **logs**. The server side script should be able to take the request with argument **logs**. Below is a example of form data for ajax call.
+
 ```javascript
 {
 log:[
