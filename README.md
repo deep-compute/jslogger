@@ -18,7 +18,7 @@ import jsLogger from "@nudjur/js-logger";
 export const log = new jsLogger({
   url: <URL>,
   mode: <MODE>
-  timeInterval: <TIME_INTERVAL>
+  time_ms: <TIME_MS>
 });
 ```
 
@@ -26,7 +26,7 @@ export const log = new jsLogger({
 
 1. url: The backend url where jslogger should send logs
 2. mode: Backend url run on different modes such as DEBUG, INFO where if it is DEBUG mode will write debug logs such as click event
-3. timeInterval: jslogger store all logs in localstorage and keeps checking if logs present and push it so we can configure the frequency by this args default: 5sec
+3. time_ms: jslogger store all logs in localstorage and keeps checking if logs present and push it so we can configure the frequency by this args default: 5sec
 4. maxLogs: jslogger will have a threshold that once a count of logs comes to localstorage it will start pushing we can adjust using this default : 1000
 
 ## Contributing Guideline
