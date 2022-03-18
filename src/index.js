@@ -57,7 +57,7 @@ class jsLogger {
       url: options.url,
       host_url: source,
       misc: options.misc,
-      ...this.extraData,
+      ...this.extraData
     };
 
     if (this.user != null) {
@@ -96,7 +96,7 @@ class jsLogger {
       type: level,
       message: msg,
       url: url ?? "",
-      misc: misc,
+      misc: misc
     };
     this.common(data);
     return;
@@ -176,7 +176,7 @@ class jsLogger {
           start_time_ms: startTime,
           end_time_ms: endTime,
           request_time_ms: endTime - startTime,
-          response_length: xhr.responseText && xhr.responseText.length,
+          response_length: xhr.responseText && xhr.responseText.length
         };
 
       if (!is_call_success) {
@@ -236,14 +236,14 @@ class jsLogger {
     }
 
     let params = {
-      logs: data,
+      logs: data
     };
 
     let xhr = axios(this.url, {
       method: "POST",
       data: JSON.stringify(params),
-      timeout: 1000 * 60 * 10,
-    }).then((res) => {
+      timeout: 1000 * 60 * 10
+    }).then(res => {
       for (let key_index in log_keys) {
         if (typeof window !== "undefined" && window !== null) {
           delete window.localStorage[log_keys[key_index]];
@@ -253,7 +253,7 @@ class jsLogger {
       }
     });
 
-    xhr.finally((response) => {
+    xhr.finally(response => {
       pending_logs -= data.length;
       if (pending_logs > 0) {
         this.flushPendingLogs();
@@ -269,9 +269,9 @@ class jsLogger {
     }
     document.body.addEventListener(
       "click",
-      (e) => {
+      e => {
         let href =
-          typeof window !== "undefined" && window === null
+          typeof window !== "undefined" && window !== null
             ? window.location.href
             : "";
         let time = new Date(),
@@ -281,7 +281,7 @@ class jsLogger {
             message: "event_click",
             level: "debug",
             target: e.target.innerHTML,
-            url: href,
+            url: href
           };
         this.appender(data);
       },
@@ -302,14 +302,14 @@ class jsLogger {
         message: "coverage_data",
         level: "info",
         host_url: host,
-        coverage_id: "",
+        coverage_id: ""
       };
     axios("/file_server/upload", {
       method: "POST",
-      body: JSON.stringify(window.__coverage__),
+      body: JSON.stringify(window.__coverage__)
     })
-      .then((res) => res.json())
-      .then((val) => {
+      .then(res => res.json())
+      .then(val => {
         data["coverage_id"] = val.md5;
         this.appender(data);
       });
@@ -327,19 +327,19 @@ class jsLogger {
       log: function (msg) {},
       info: function (msg) {},
       warn: function (msg) {},
-      error: (msg) => {
+      error: msg => {
         let time = new Date(),
           data = {
             UUID: uuidv4(),
             timestamp: time.getTime(),
             message: msg,
             level: "error",
-            host_url: window.location.host,
+            host_url: window.location.host
           };
 
         this.appender(data);
         return;
-      },
+      }
     };
   }
 }
