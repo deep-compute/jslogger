@@ -40,6 +40,7 @@ var jsLogger = /*#__PURE__*/function () {
     this.host = req.host || "";
     this.user_detail = null;
     this.isAjaxCompleted = true;
+    this.waitingLogs = [];
     this.mode = (req === null || req === void 0 ? void 0 : req.mode) || "info";
     this.logs = [];
     this.interval = "";
@@ -64,7 +65,7 @@ var jsLogger = /*#__PURE__*/function () {
     value: function endCheck() {
       if (!this.interval) return;
       clearInterval(this.interval);
-      this.setInterval = "";
+      this.interval = "";
     }
   }, {
     key: "bind",
@@ -103,17 +104,38 @@ var jsLogger = /*#__PURE__*/function () {
 
       this.appender(data);
       return;
+    }
+  }, {
+    key: "storageAvailable",
+    value: function storageAvailable(type, key, value) {
+      var storage;
+
+      try {
+        storage = window[type];
+        storage.setItem(key, value);
+        storage.removeItem(key);
+        return true;
+      } catch (e) {
+        console.log(e);
+        return false;
+      }
     } // store data to localStorage
 
   }, {
     key: "appender",
     value: function appender(data) {
       this.startCheck();
-      this.count += 1;
 
       if (typeof window !== "undefined" && window !== null) {
-        window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
+        if (this.storageAvailable('localStorage', "logging_" + data.UUID, JSON.stringify(data))) {
+          this.count += 1;
+          window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
+        } else {
+          // Too bad, no localStorage for us
+          this.waitingLogs.push(data);
+        }
       } else {
+        this.count += 1;
         this.logs.push(JSON.stringify(data));
       }
 
@@ -282,7 +304,14 @@ var jsLogger = /*#__PURE__*/function () {
           } else {
             _this2.logs.splice(_key_index2, 1);
           }
+        } //append waiting logs to localStorage
+
+
+        for (var _i = 0; _i < _this2.waitingLogs.length; _i++) {
+          _this2.appender(_this2.waitingLogs[_i]);
         }
+
+        _this2.waitingLogs = []; // clear waiting logs
       });
       xhr["finally"](function (response) {
         pending_logs -= data.length;

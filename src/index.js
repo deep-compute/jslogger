@@ -31,11 +31,13 @@ class jsLogger {
       this.ajaxCall();
     }, this.timeInterval);
   }
+
   endCheck() {
     if (!this.interval) return;
     clearInterval(this.interval);
-    this.setInterval = "";
+    this.interval = "";
   }
+
   bind(req) {
     this.user = req.user;
     delete req.user;
@@ -74,38 +76,27 @@ class jsLogger {
     return;
   }
 
-
-  storageAvailable(type) {
-    var storage;
+  storageAvailable(type, key, value) {
+    let storage;
     try {
       storage = window[type];
-      var x = '__storage_test__';
-      storage.setItem(x, x);
-      storage.removeItem(x);
+      storage.setItem(key, value);
+      storage.removeItem(key);
       return true;
     }
     catch (e) {
-      return e instanceof DOMException && (
-        // everything except Firefox
-        e.code === 22 ||
-        // Firefox
-        e.code === 1014 ||
-        // test name field too, because code might not be present
-        // everything except Firefox
-        e.name === 'QuotaExceededError' ||
-        // Firefox
-        e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
-        // acknowledge QuotaExceededError only if there's something already stored
-        (storage && storage.length !== 0);
+      console.log(e);
+      return false;
     }
   }
 
   // store data to localStorage
   appender(data) {
     this.startCheck();
-    this.count += 1;
+
     if (typeof window !== "undefined" && window !== null) {
-      if (storageAvailable('localStorage')) {
+      if (this.storageAvailable('localStorage', "logging_" + data.UUID, JSON.stringify(data))) {
+        this.count += 1;
         window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
       }
       else {
@@ -113,6 +104,7 @@ class jsLogger {
         this.waitingLogs.push(data);
       }
     } else {
+      this.count += 1;
       this.logs.push(JSON.stringify(data));
     }
 
@@ -290,7 +282,7 @@ class jsLogger {
       for (let i = 0; i < this.waitingLogs.length; i++) {
         this.appender(this.waitingLogs[i]);
       }
-      this.waitingLogs = [];  // clear waiting logs
+      this.waitingLogs = []; // clear waiting logs
 
     });
 
@@ -386,3 +378,4 @@ class jsLogger {
 }
 
 export default jsLogger;
+
