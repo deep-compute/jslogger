@@ -16,6 +16,7 @@ class jsLogger {
     this.host = req.host || "";
     this.user_detail = null;
     this.isAjaxCompleted = true;
+    this.waitingLogs = [];
     this.mode = req?.mode || "info";
     this.logs = [];
     this.interval = "";
@@ -30,11 +31,13 @@ class jsLogger {
       this.ajaxCall();
     }, this.timeInterval);
   }
+
   endCheck() {
     if (!this.interval) return;
     clearInterval(this.interval);
-    this.setInterval = "";
+    this.interval = "";
   }
+
   bind(req) {
     this.user = req.user;
     delete req.user;
@@ -73,13 +76,35 @@ class jsLogger {
     return;
   }
 
+  storageAvailable(type, key, value) {
+    let storage;
+    try {
+      storage = window[type];
+      storage.setItem(key, value);
+      storage.removeItem(key);
+      return true;
+    }
+    catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
   // store data to localStorage
   appender(data) {
     this.startCheck();
-    this.count += 1;
+
     if (typeof window !== "undefined" && window !== null) {
-      window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
+      if (this.storageAvailable('localStorage', "logging_" + data.UUID, JSON.stringify(data))) {
+        this.count += 1;
+        window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
+      }
+      else {
+        // Too bad, no localStorage for us
+        this.waitingLogs.push(data);
+      }
     } else {
+      this.count += 1;
       this.logs.push(JSON.stringify(data));
     }
 
@@ -164,7 +189,7 @@ class jsLogger {
     this.log_data("exception", arguments[0], href, arguments[1]);
     return;
   }
-  constructBody(msg) {}
+  constructBody(msg) { }
   xhrStatus(msg, req_url, xhr, startTime, is_call_success) {
     try {
       let endTime = new Date().getTime(),
@@ -185,7 +210,7 @@ class jsLogger {
 
       this.common({ message: msg, misc: data });
       return;
-    } catch (err) {}
+    } catch (err) { }
   }
 
   // flush logs into server
@@ -244,6 +269,7 @@ class jsLogger {
       data: JSON.stringify(params),
       timeout: 1000 * 60 * 10
     }).then(res => {
+
       for (let key_index in log_keys) {
         if (typeof window !== "undefined" && window !== null) {
           delete window.localStorage[log_keys[key_index]];
@@ -251,6 +277,13 @@ class jsLogger {
           this.logs.splice(key_index, 1);
         }
       }
+
+      //append waiting logs to localStorage
+      for (let i = 0; i < this.waitingLogs.length; i++) {
+        this.appender(this.waitingLogs[i]);
+      }
+      this.waitingLogs = []; // clear waiting logs
+
     });
 
     xhr.finally(response => {
@@ -324,9 +357,9 @@ class jsLogger {
       return;
     }
     window.console = {
-      log: function (msg) {},
-      info: function (msg) {},
-      warn: function (msg) {},
+      log: function (msg) { },
+      info: function (msg) { },
+      warn: function (msg) { },
       error: msg => {
         let time = new Date(),
           data = {
@@ -345,3 +378,4 @@ class jsLogger {
 }
 
 export default jsLogger;
+
