@@ -80,7 +80,7 @@ var jsLogger = /*#__PURE__*/function () {
     value: function common(options) {
       var time = new Date(); // TODO use window.location.host
 
-      var source = typeof window !== "undefined" && window === null ? window.location.host : this.host;
+      var source = typeof window !== "undefined" && window !== null ? window.location.host : this.host;
 
       var data = _objectSpread({
         UUID: (0, _uuid.v4)(),
@@ -116,7 +116,7 @@ var jsLogger = /*#__PURE__*/function () {
         storage.removeItem(key);
         return true;
       } catch (e) {
-        console.log(e);
+        console.error(e);
         return false;
       }
     } // store data to localStorage
@@ -127,7 +127,7 @@ var jsLogger = /*#__PURE__*/function () {
       this.startCheck();
 
       if (typeof window !== "undefined" && window !== null) {
-        if (this.storageAvailable('localStorage', "logging_" + data.UUID, JSON.stringify(data))) {
+        if (this.storageAvailable("localStorage", "logging_" + data.UUID, JSON.stringify(data))) {
           this.count += 1;
           window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
         } else {
@@ -164,49 +164,49 @@ var jsLogger = /*#__PURE__*/function () {
   }, {
     key: "info",
     value: function info() {
-      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
       this.log_data("info", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "error",
     value: function error() {
-      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
       this.log_data("exception", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "debug",
     value: function debug() {
-      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
       this.log_data("debug", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "log",
     value: function log() {
-      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
       this.log_data("log", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "warn",
     value: function warn() {
-      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
       this.log_data("warn", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "msg",
     value: function msg() {
-      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
       this.log_data("msg", arguments[0], href, arguments[1]);
       return;
     }
   }, {
     key: "exception",
     value: function exception() {
-      var href = typeof window !== "undefined" && window === null ? window.location.href : "";
+      var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
       this.log_data("exception", arguments[0], href, arguments[1]);
       return;
     }
