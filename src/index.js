@@ -49,7 +49,7 @@ class jsLogger {
     let time = new Date();
     // TODO use window.location.host
     let source =
-      typeof window !== "undefined" && window === null
+      typeof window !== "undefined" && window !== null
         ? window.location.host
         : this.host;
     let data = {
@@ -83,9 +83,8 @@ class jsLogger {
       storage.setItem(key, value);
       storage.removeItem(key);
       return true;
-    }
-    catch (e) {
-      console.log(e);
+    } catch (e) {
+      console.error(e);
       return false;
     }
   }
@@ -95,11 +94,19 @@ class jsLogger {
     this.startCheck();
 
     if (typeof window !== "undefined" && window !== null) {
-      if (this.storageAvailable('localStorage', "logging_" + data.UUID, JSON.stringify(data))) {
+      if (
+        this.storageAvailable(
+          "localStorage",
+          "logging_" + data.UUID,
+          JSON.stringify(data)
+        )
+      ) {
         this.count += 1;
-        window.localStorage.setItem("logging_" + data.UUID, JSON.stringify(data));
-      }
-      else {
+        window.localStorage.setItem(
+          "logging_" + data.UUID,
+          JSON.stringify(data)
+        );
+      } else {
         // Too bad, no localStorage for us
         this.waitingLogs.push(data);
       }
@@ -129,7 +136,7 @@ class jsLogger {
   // Log different kinds of console logging methods
   info() {
     let href =
-      typeof window !== "undefined" && window === null
+      typeof window !== "undefined" && window !== null
         ? window.location.href
         : "";
     this.log_data("info", arguments[0], href, arguments[1]);
@@ -138,7 +145,7 @@ class jsLogger {
 
   error() {
     let href =
-      typeof window !== "undefined" && window === null
+      typeof window !== "undefined" && window !== null
         ? window.location.href
         : "";
     this.log_data("exception", arguments[0], href, arguments[1]);
@@ -147,7 +154,7 @@ class jsLogger {
 
   debug() {
     let href =
-      typeof window !== "undefined" && window === null
+      typeof window !== "undefined" && window !== null
         ? window.location.href
         : "";
     this.log_data("debug", arguments[0], href, arguments[1]);
@@ -156,7 +163,7 @@ class jsLogger {
 
   log() {
     let href =
-      typeof window !== "undefined" && window === null
+      typeof window !== "undefined" && window !== null
         ? window.location.href
         : "";
     this.log_data("log", arguments[0], href, arguments[1]);
@@ -165,7 +172,7 @@ class jsLogger {
 
   warn() {
     let href =
-      typeof window !== "undefined" && window === null
+      typeof window !== "undefined" && window !== null
         ? window.location.href
         : "";
     this.log_data("warn", arguments[0], href, arguments[1]);
@@ -174,7 +181,7 @@ class jsLogger {
 
   msg() {
     let href =
-      typeof window !== "undefined" && window === null
+      typeof window !== "undefined" && window !== null
         ? window.location.href
         : "";
     this.log_data("msg", arguments[0], href, arguments[1]);
@@ -183,13 +190,13 @@ class jsLogger {
 
   exception() {
     let href =
-      typeof window !== "undefined" && window === null
+      typeof window !== "undefined" && window !== null
         ? window.location.href
         : "";
     this.log_data("exception", arguments[0], href, arguments[1]);
     return;
   }
-  constructBody(msg) { }
+  constructBody(msg) {}
   xhrStatus(msg, req_url, xhr, startTime, is_call_success) {
     try {
       let endTime = new Date().getTime(),
@@ -210,7 +217,7 @@ class jsLogger {
 
       this.common({ message: msg, misc: data });
       return;
-    } catch (err) { }
+    } catch (err) {}
   }
 
   // flush logs into server
@@ -269,7 +276,6 @@ class jsLogger {
       data: JSON.stringify(params),
       timeout: 1000 * 60 * 10
     }).then(res => {
-
       for (let key_index in log_keys) {
         if (typeof window !== "undefined" && window !== null) {
           delete window.localStorage[log_keys[key_index]];
@@ -283,7 +289,6 @@ class jsLogger {
         this.appender(this.waitingLogs[i]);
       }
       this.waitingLogs = []; // clear waiting logs
-
     });
 
     xhr.finally(response => {
@@ -357,9 +362,9 @@ class jsLogger {
       return;
     }
     window.console = {
-      log: function (msg) { },
-      info: function (msg) { },
-      warn: function (msg) { },
+      log: function (msg) {},
+      info: function (msg) {},
+      warn: function (msg) {},
       error: msg => {
         let time = new Date(),
           data = {
@@ -378,4 +383,3 @@ class jsLogger {
 }
 
 export default jsLogger;
-
