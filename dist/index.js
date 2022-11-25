@@ -78,12 +78,15 @@ var jsLogger = /*#__PURE__*/function () {
   }, {
     key: "common",
     value: function common(options) {
+      var _options$misc, _options$misc2;
+
       var time = new Date(); // TODO use window.location.host
 
       var source = typeof window !== "undefined" && window !== null ? window.location.host : this.host;
 
       var data = _objectSpread({
-        UUID: (0, _uuid.v4)(),
+        UUID: (options === null || options === void 0 ? void 0 : (_options$misc = options.misc) === null || _options$misc === void 0 ? void 0 : _options$misc.UUID) || (0, _uuid.v4)(),
+        request_id: options === null || options === void 0 ? void 0 : (_options$misc2 = options.misc) === null || _options$misc2 === void 0 ? void 0 : _options$misc2.UUID,
         timestamp: time.getTime(),
         message: options.message,
         level: options.type,

@@ -1,6 +1,6 @@
 {
   "name": "@nudjur/js-logger",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "To add structured logs in your node project",
   "main": "dist/index.js",
   "directories": {

@@ -52,8 +52,10 @@ class jsLogger {
       typeof window !== "undefined" && window !== null
         ? window.location.host
         : this.host;
+
     let data = {
-      UUID: uuidv4(),
+      UUID: options?.misc?.UUID || uuidv4(),
+      request_id: options?.misc?.UUID,
       timestamp: time.getTime(),
       message: options.message,
       level: options.type,
