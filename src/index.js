@@ -46,7 +46,19 @@ class jsLogger {
 
   // Get data from all kinds of messages that are being logged and form a structed log.
   common(options) {
-    let time = new Date();
+    let d = new Date();
+    let time =
+      d.getUTCFullYear() +
+      "-" +
+      d.getUTCMonth() +
+      "-" +
+      d.getUTCDate() +
+      "T" +
+      d.getUTCHours() +
+      "-" +
+      d.getUTCMinutes() +
+      "-" +
+      d.getUTCSeconds();
     // TODO use window.location.host
     let source =
       typeof window !== "undefined" && window !== null
@@ -54,14 +66,14 @@ class jsLogger {
         : this.host;
 
     let data = {
-      UUID: options?.misc?.UUID || uuidv4(),
-      request_id: options?.misc?.UUID,
-      timestamp: time.getTime(),
-      message: options.message,
       level: options.type,
+      UUID: uuidv4(),
+      request_id: options?.misc?.request_id,
+      timestamp: time,
+      event: options.message,
       url: options.url,
       host_url: source,
-      misc: options.misc,
+      data: options.misc,
       ...this.extraData
     };
 
