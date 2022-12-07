@@ -65,15 +65,17 @@ class jsLogger {
         ? window.location.host
         : this.host;
 
+    const { request_id = "", ...rest } = options?.misc;
+
     let data = {
       level: options.type,
       UUID: uuidv4(),
-      request_id: options?.misc?.request_id,
+      request_id,
       timestamp: time,
       event: options.message,
       url: options.url,
       host_url: source,
-      data: options.misc,
+      data: rest,
       ...this.extraData
     };
 
@@ -326,6 +328,7 @@ class jsLogger {
           typeof window !== "undefined" && window !== null
             ? window.location.href
             : "";
+        let d = new Date();
 
         let time =
           d.getUTCFullYear() +
