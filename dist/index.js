@@ -84,8 +84,7 @@ var jsLogger = /*#__PURE__*/function () {
   }, {
     key: "common",
     value: function common(options) {
-      var d = new Date();
-      var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds(); // TODO use window.location.host
+      var d = new Date(); // TODO use window.location.host
 
       var source = typeof window !== "undefined" && window !== null ? window.location.host : this.host;
       var data;
@@ -100,7 +99,7 @@ var jsLogger = /*#__PURE__*/function () {
           level: options.type,
           UUID: (0, _uuid.v4)(),
           request_id: request_id,
-          timestamp: time,
+          timestamp: this.getTimeStamp(),
           event: options.message,
           url: options.url,
           host_url: source,
@@ -110,7 +109,7 @@ var jsLogger = /*#__PURE__*/function () {
         data = _objectSpread({
           level: options.type,
           UUID: (0, _uuid.v4)(),
-          timestamp: time,
+          timestamp: this.getTimeStamp(),
           event: options.message,
           url: options.url,
           host_url: source,
@@ -361,11 +360,9 @@ var jsLogger = /*#__PURE__*/function () {
 
       document.body.addEventListener("click", function (e) {
         var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
-        var d = new Date();
-        var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds();
         var data = {
           UUID: (0, _uuid.v4)(),
-          timestamp: time,
+          timestamp: _this3.getTimeStamp(),
           event: "event_click",
           level: "debug",
           target: e.target.innerHTML,
@@ -382,11 +379,9 @@ var jsLogger = /*#__PURE__*/function () {
       var _this4 = this;
 
       var host = typeof window !== "undefined" && window === null ? window.location.host : "";
-      var d = new Date();
-      var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds();
       var data = {
         UUID: (0, _uuid.v4)(),
-        timestamp: time,
+        timestamp: this.getTimeStamp(),
         event: "coverage_data",
         level: "info",
         host_url: host,
@@ -403,6 +398,13 @@ var jsLogger = /*#__PURE__*/function () {
         _this4.appender(data);
       });
       return;
+    }
+  }, {
+    key: "getTimeStamp",
+    value: function getTimeStamp() {
+      var date = new Date();
+      var time = date.getUTCFullYear() + "-" + date.getUTCMonth() + "-" + date.getUTCDate() + "T" + date.getUTCHours() + "-" + date.getUTCMinutes() + "-" + date.getUTCSeconds();
+      return time;
     } // Time interval for sending logs to url
     // capture javascript errors
 
@@ -420,11 +422,9 @@ var jsLogger = /*#__PURE__*/function () {
         info: function info(msg) {},
         warn: function warn(msg) {},
         error: function error(msg) {
-          var d = new Date();
-          var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds();
           var data = {
             UUID: (0, _uuid.v4)(),
-            timestamp: time,
+            timestamp: _this5.getTimeStamp(),
             event: "Console_Error",
             data: msg,
             level: "error",

@@ -47,18 +47,7 @@ class jsLogger {
   // Get data from all kinds of messages that are being logged and form a structed log.
   common(options) {
     let d = new Date();
-    let time =
-      d.getUTCFullYear() +
-      "-" +
-      d.getUTCMonth() +
-      "-" +
-      d.getUTCDate() +
-      "T" +
-      d.getUTCHours() +
-      "-" +
-      d.getUTCMinutes() +
-      "-" +
-      d.getUTCSeconds();
+
     // TODO use window.location.host
     let source =
       typeof window !== "undefined" && window !== null
@@ -72,7 +61,7 @@ class jsLogger {
         level: options.type,
         UUID: uuidv4(),
         request_id,
-        timestamp: time,
+        timestamp: this.getTimeStamp(),
         event: options.message,
         url: options.url,
         host_url: source,
@@ -83,7 +72,7 @@ class jsLogger {
       data = {
         level: options.type,
         UUID: uuidv4(),
-        timestamp: time,
+        timestamp: this.getTimeStamp(),
         event: options.message,
         url: options.url,
         host_url: source,
@@ -341,23 +330,10 @@ class jsLogger {
           typeof window !== "undefined" && window !== null
             ? window.location.href
             : "";
-        let d = new Date();
 
-        let time =
-          d.getUTCFullYear() +
-          "-" +
-          d.getUTCMonth() +
-          "-" +
-          d.getUTCDate() +
-          "T" +
-          d.getUTCHours() +
-          "-" +
-          d.getUTCMinutes() +
-          "-" +
-          d.getUTCSeconds();
         let data = {
           UUID: uuidv4(),
-          timestamp: time,
+          timestamp: this.getTimeStamp(),
           event: "event_click",
           level: "debug",
           target: e.target.innerHTML,
@@ -375,22 +351,10 @@ class jsLogger {
       typeof window !== "undefined" && window === null
         ? window.location.host
         : "";
-    let d = new Date();
-    let time =
-      d.getUTCFullYear() +
-      "-" +
-      d.getUTCMonth() +
-      "-" +
-      d.getUTCDate() +
-      "T" +
-      d.getUTCHours() +
-      "-" +
-      d.getUTCMinutes() +
-      "-" +
-      d.getUTCSeconds();
+
     let data = {
       UUID: uuidv4(),
-      timestamp: time,
+      timestamp: this.getTimeStamp(),
       event: "coverage_data",
       level: "info",
       host_url: host,
@@ -408,6 +372,22 @@ class jsLogger {
 
     return;
   }
+  getTimeStamp() {
+    let date = new Date();
+    let time =
+      date.getUTCFullYear() +
+      "-" +
+      date.getUTCMonth() +
+      "-" +
+      date.getUTCDate() +
+      "T" +
+      date.getUTCHours() +
+      "-" +
+      date.getUTCMinutes() +
+      "-" +
+      date.getUTCSeconds();
+    return time;
+  }
 
   // Time interval for sending logs to url
   // capture javascript errors
@@ -420,22 +400,9 @@ class jsLogger {
       info: function (msg) {},
       warn: function (msg) {},
       error: msg => {
-        let d = new Date();
-        let time =
-          d.getUTCFullYear() +
-          "-" +
-          d.getUTCMonth() +
-          "-" +
-          d.getUTCDate() +
-          "T" +
-          d.getUTCHours() +
-          "-" +
-          d.getUTCMinutes() +
-          "-" +
-          d.getUTCSeconds();
         let data = {
           UUID: uuidv4(),
-          timestamp: time,
+          timestamp: this.getTimeStamp(),
           event: "Console_Error",
           data: msg,
           level: "error",
