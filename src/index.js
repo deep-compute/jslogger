@@ -326,15 +326,27 @@ class jsLogger {
           typeof window !== "undefined" && window !== null
             ? window.location.href
             : "";
-        let time = new Date(),
-          data = {
-            UUID: uuidv4(),
-            timestamp: time.getTime(),
-            message: "event_click",
-            level: "debug",
-            target: e.target.innerHTML,
-            url: href
-          };
+
+        let time =
+          d.getUTCFullYear() +
+          "-" +
+          d.getUTCMonth() +
+          "-" +
+          d.getUTCDate() +
+          "T" +
+          d.getUTCHours() +
+          "-" +
+          d.getUTCMinutes() +
+          "-" +
+          d.getUTCSeconds();
+        let data = {
+          UUID: uuidv4(),
+          timestamp: time,
+          event: "event_click",
+          level: "debug",
+          target: e.target.innerHTML,
+          url: href
+        };
         this.appender(data);
       },
       true
@@ -347,15 +359,27 @@ class jsLogger {
       typeof window !== "undefined" && window === null
         ? window.location.host
         : "";
-    let time = new Date(),
-      data = {
-        UUID: uuidv4(),
-        timestamp: time.getTime(),
-        message: "coverage_data",
-        level: "info",
-        host_url: host,
-        coverage_id: ""
-      };
+    let d = new Date();
+    let time =
+      d.getUTCFullYear() +
+      "-" +
+      d.getUTCMonth() +
+      "-" +
+      d.getUTCDate() +
+      "T" +
+      d.getUTCHours() +
+      "-" +
+      d.getUTCMinutes() +
+      "-" +
+      d.getUTCSeconds();
+    let data = {
+      UUID: uuidv4(),
+      timestamp: time,
+      event: "coverage_data",
+      level: "info",
+      host_url: host,
+      coverage_id: ""
+    };
     axios("/file_server/upload", {
       method: "POST",
       body: JSON.stringify(window.__coverage__)
@@ -380,14 +404,27 @@ class jsLogger {
       info: function (msg) {},
       warn: function (msg) {},
       error: msg => {
-        let time = new Date(),
-          data = {
-            UUID: uuidv4(),
-            timestamp: time.getTime(),
-            message: msg,
-            level: "error",
-            host_url: window.location.host
-          };
+        let d = new Date();
+        let time =
+          d.getUTCFullYear() +
+          "-" +
+          d.getUTCMonth() +
+          "-" +
+          d.getUTCDate() +
+          "T" +
+          d.getUTCHours() +
+          "-" +
+          d.getUTCMinutes() +
+          "-" +
+          d.getUTCSeconds();
+        let data = {
+          UUID: uuidv4(),
+          timestamp: time,
+          event: "Console_Error",
+          data: msg,
+          level: "error",
+          host_url: window.location.host
+        };
 
         this.appender(data);
         return;

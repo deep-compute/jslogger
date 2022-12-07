@@ -78,21 +78,22 @@ var jsLogger = /*#__PURE__*/function () {
   }, {
     key: "common",
     value: function common(options) {
-      var _options$misc, _options$misc2;
+      var _options$misc;
 
-      var time = new Date(); // TODO use window.location.host
+      var d = new Date();
+      var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds(); // TODO use window.location.host
 
       var source = typeof window !== "undefined" && window !== null ? window.location.host : this.host;
 
       var data = _objectSpread({
-        UUID: (options === null || options === void 0 ? void 0 : (_options$misc = options.misc) === null || _options$misc === void 0 ? void 0 : _options$misc.UUID) || (0, _uuid.v4)(),
-        request_id: options === null || options === void 0 ? void 0 : (_options$misc2 = options.misc) === null || _options$misc2 === void 0 ? void 0 : _options$misc2.UUID,
-        timestamp: time.getTime(),
-        message: options.message,
         level: options.type,
+        UUID: (0, _uuid.v4)(),
+        request_id: options === null || options === void 0 ? void 0 : (_options$misc = options.misc) === null || _options$misc === void 0 ? void 0 : _options$misc.request_id,
+        timestamp: time,
+        event: options.message,
         url: options.url,
         host_url: source,
-        misc: options.misc
+        data: options.misc
       }, this.extraData);
 
       if (this.user != null) {
@@ -338,11 +339,11 @@ var jsLogger = /*#__PURE__*/function () {
 
       document.body.addEventListener("click", function (e) {
         var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
-        var time = new Date(),
-            data = {
+        var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds();
+        var data = {
           UUID: (0, _uuid.v4)(),
-          timestamp: time.getTime(),
-          message: "event_click",
+          timestamp: time,
+          event: "event_click",
           level: "debug",
           target: e.target.innerHTML,
           url: href
@@ -358,11 +359,12 @@ var jsLogger = /*#__PURE__*/function () {
       var _this4 = this;
 
       var host = typeof window !== "undefined" && window === null ? window.location.host : "";
-      var time = new Date(),
-          data = {
+      var d = new Date();
+      var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds();
+      var data = {
         UUID: (0, _uuid.v4)(),
-        timestamp: time.getTime(),
-        message: "coverage_data",
+        timestamp: time,
+        event: "coverage_data",
         level: "info",
         host_url: host,
         coverage_id: ""
@@ -395,11 +397,13 @@ var jsLogger = /*#__PURE__*/function () {
         info: function info(msg) {},
         warn: function warn(msg) {},
         error: function error(msg) {
-          var time = new Date(),
-              data = {
+          var d = new Date();
+          var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds();
+          var data = {
             UUID: (0, _uuid.v4)(),
-            timestamp: time.getTime(),
-            message: msg,
+            timestamp: time,
+            event: "Console_Error",
+            data: msg,
             level: "error",
             host_url: window.location.host
           };
