@@ -65,19 +65,32 @@ class jsLogger {
         ? window.location.host
         : this.host;
 
-    const { request_id = "", ...rest } = options?.misc;
-
-    let data = {
-      level: options.type,
-      UUID: uuidv4(),
-      request_id,
-      timestamp: time,
-      event: options.message,
-      url: options.url,
-      host_url: source,
-      data: rest,
-      ...this.extraData
-    };
+    let data;
+    try {
+      const { request_id = "", ...rest } = options?.misc;
+      data = {
+        level: options.type,
+        UUID: uuidv4(),
+        request_id,
+        timestamp: time,
+        event: options.message,
+        url: options.url,
+        host_url: source,
+        data: rest,
+        ...this.extraData
+      };
+    } catch {
+      data = {
+        level: options.type,
+        UUID: uuidv4(),
+        timestamp: time,
+        event: options.message,
+        url: options.url,
+        host_url: source,
+        data: options?.misc,
+        ...this.extraData
+      };
+    }
 
     if (this.user != null) {
       data.this.user = this.user;

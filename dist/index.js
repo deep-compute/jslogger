@@ -88,22 +88,35 @@ var jsLogger = /*#__PURE__*/function () {
       var time = d.getUTCFullYear() + "-" + d.getUTCMonth() + "-" + d.getUTCDate() + "T" + d.getUTCHours() + "-" + d.getUTCMinutes() + "-" + d.getUTCSeconds(); // TODO use window.location.host
 
       var source = typeof window !== "undefined" && window !== null ? window.location.host : this.host;
+      var data;
 
-      var _options$misc = options === null || options === void 0 ? void 0 : options.misc,
-          _options$misc$request = _options$misc.request_id,
-          request_id = _options$misc$request === void 0 ? "" : _options$misc$request,
-          rest = _objectWithoutProperties(_options$misc, _excluded);
+      try {
+        var _options$misc = options === null || options === void 0 ? void 0 : options.misc,
+            _options$misc$request = _options$misc.request_id,
+            request_id = _options$misc$request === void 0 ? "" : _options$misc$request,
+            rest = _objectWithoutProperties(_options$misc, _excluded);
 
-      var data = _objectSpread({
-        level: options.type,
-        UUID: (0, _uuid.v4)(),
-        request_id: request_id,
-        timestamp: time,
-        event: options.message,
-        url: options.url,
-        host_url: source,
-        data: rest
-      }, this.extraData);
+        data = _objectSpread({
+          level: options.type,
+          UUID: (0, _uuid.v4)(),
+          request_id: request_id,
+          timestamp: time,
+          event: options.message,
+          url: options.url,
+          host_url: source,
+          data: rest
+        }, this.extraData);
+      } catch (_unused) {
+        data = _objectSpread({
+          level: options.type,
+          UUID: (0, _uuid.v4)(),
+          timestamp: time,
+          event: options.message,
+          url: options.url,
+          host_url: source,
+          data: options === null || options === void 0 ? void 0 : options.misc
+        }, this.extraData);
+      }
 
       if (this.user != null) {
         data["this"].user = this.user;
