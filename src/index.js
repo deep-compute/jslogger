@@ -374,19 +374,7 @@ class jsLogger {
   }
   getTimeStamp() {
     let date = new Date();
-    let time =
-      date.getUTCFullYear() +
-      "-" +
-      date.getUTCMonth() +
-      "-" +
-      date.getUTCDate() +
-      "T" +
-      date.getUTCHours() +
-      "-" +
-      date.getUTCMinutes() +
-      "-" +
-      date.getUTCSeconds();
-    return time;
+    return date.toISOString();
   }
 
   // Time interval for sending logs to url

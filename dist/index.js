@@ -403,8 +403,7 @@ var jsLogger = /*#__PURE__*/function () {
     key: "getTimeStamp",
     value: function getTimeStamp() {
       var date = new Date();
-      var time = date.getUTCFullYear() + "-" + date.getUTCMonth() + "-" + date.getUTCDate() + "T" + date.getUTCHours() + "-" + date.getUTCMinutes() + "-" + date.getUTCSeconds();
-      return time;
+      return date.toISOString();
     } // Time interval for sending logs to url
     // capture javascript errors
 
