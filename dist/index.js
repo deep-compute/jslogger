@@ -9,6 +9,8 @@ var _uuid = require("uuid");
 
 var _axios = _interopRequireDefault(require("axios"));
 
+var _excluded = ["request_id"];
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
@@ -16,6 +18,10 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -78,22 +84,38 @@ var jsLogger = /*#__PURE__*/function () {
   }, {
     key: "common",
     value: function common(options) {
-      var _options$misc, _options$misc2;
-
-      var time = new Date(); // TODO use window.location.host
+      var d = new Date(); // TODO use window.location.host
 
       var source = typeof window !== "undefined" && window !== null ? window.location.host : this.host;
+      var data;
 
-      var data = _objectSpread({
-        UUID: (options === null || options === void 0 ? void 0 : (_options$misc = options.misc) === null || _options$misc === void 0 ? void 0 : _options$misc.UUID) || (0, _uuid.v4)(),
-        request_id: options === null || options === void 0 ? void 0 : (_options$misc2 = options.misc) === null || _options$misc2 === void 0 ? void 0 : _options$misc2.UUID,
-        timestamp: time.getTime(),
-        message: options.message,
-        level: options.type,
-        url: options.url,
-        host_url: source,
-        misc: options.misc
-      }, this.extraData);
+      try {
+        var _options$misc = options === null || options === void 0 ? void 0 : options.misc,
+            _options$misc$request = _options$misc.request_id,
+            request_id = _options$misc$request === void 0 ? "" : _options$misc$request,
+            rest = _objectWithoutProperties(_options$misc, _excluded);
+
+        data = _objectSpread({
+          level: options.type,
+          UUID: (0, _uuid.v4)(),
+          request_id: request_id,
+          timestamp: this.getTimeStamp(),
+          event: options.message,
+          url: options.url,
+          host_url: source,
+          data: rest
+        }, this.extraData);
+      } catch (_unused) {
+        data = _objectSpread({
+          level: options.type,
+          UUID: (0, _uuid.v4)(),
+          timestamp: this.getTimeStamp(),
+          event: options.message,
+          url: options.url,
+          host_url: source,
+          data: options === null || options === void 0 ? void 0 : options.misc
+        }, this.extraData);
+      }
 
       if (this.user != null) {
         data["this"].user = this.user;
@@ -338,11 +360,10 @@ var jsLogger = /*#__PURE__*/function () {
 
       document.body.addEventListener("click", function (e) {
         var href = typeof window !== "undefined" && window !== null ? window.location.href : "";
-        var time = new Date(),
-            data = {
+        var data = {
           UUID: (0, _uuid.v4)(),
-          timestamp: time.getTime(),
-          message: "event_click",
+          timestamp: _this3.getTimeStamp(),
+          event: "event_click",
           level: "debug",
           target: e.target.innerHTML,
           url: href
@@ -358,11 +379,10 @@ var jsLogger = /*#__PURE__*/function () {
       var _this4 = this;
 
       var host = typeof window !== "undefined" && window === null ? window.location.host : "";
-      var time = new Date(),
-          data = {
+      var data = {
         UUID: (0, _uuid.v4)(),
-        timestamp: time.getTime(),
-        message: "coverage_data",
+        timestamp: this.getTimeStamp(),
+        event: "coverage_data",
         level: "info",
         host_url: host,
         coverage_id: ""
@@ -378,6 +398,12 @@ var jsLogger = /*#__PURE__*/function () {
         _this4.appender(data);
       });
       return;
+    }
+  }, {
+    key: "getTimeStamp",
+    value: function getTimeStamp() {
+      var date = new Date();
+      return date.toISOString();
     } // Time interval for sending logs to url
     // capture javascript errors
 
@@ -395,11 +421,11 @@ var jsLogger = /*#__PURE__*/function () {
         info: function info(msg) {},
         warn: function warn(msg) {},
         error: function error(msg) {
-          var time = new Date(),
-              data = {
+          var data = {
             UUID: (0, _uuid.v4)(),
-            timestamp: time.getTime(),
-            message: msg,
+            timestamp: _this5.getTimeStamp(),
+            event: "Console_Error",
+            data: msg,
             level: "error",
             host_url: window.location.host
           };

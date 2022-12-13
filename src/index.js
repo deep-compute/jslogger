@@ -46,24 +46,40 @@ class jsLogger {
 
   // Get data from all kinds of messages that are being logged and form a structed log.
   common(options) {
-    let time = new Date();
+    let d = new Date();
+
     // TODO use window.location.host
     let source =
       typeof window !== "undefined" && window !== null
         ? window.location.host
         : this.host;
 
-    let data = {
-      UUID: options?.misc?.UUID || uuidv4(),
-      request_id: options?.misc?.UUID,
-      timestamp: time.getTime(),
-      message: options.message,
-      level: options.type,
-      url: options.url,
-      host_url: source,
-      misc: options.misc,
-      ...this.extraData
-    };
+    let data;
+    try {
+      const { request_id = "", ...rest } = options?.misc;
+      data = {
+        level: options.type,
+        UUID: uuidv4(),
+        request_id,
+        timestamp: this.getTimeStamp(),
+        event: options.message,
+        url: options.url,
+        host_url: source,
+        data: rest,
+        ...this.extraData
+      };
+    } catch {
+      data = {
+        level: options.type,
+        UUID: uuidv4(),
+        timestamp: this.getTimeStamp(),
+        event: options.message,
+        url: options.url,
+        host_url: source,
+        data: options?.misc,
+        ...this.extraData
+      };
+    }
 
     if (this.user != null) {
       data.this.user = this.user;
@@ -314,15 +330,15 @@ class jsLogger {
           typeof window !== "undefined" && window !== null
             ? window.location.href
             : "";
-        let time = new Date(),
-          data = {
-            UUID: uuidv4(),
-            timestamp: time.getTime(),
-            message: "event_click",
-            level: "debug",
-            target: e.target.innerHTML,
-            url: href
-          };
+
+        let data = {
+          UUID: uuidv4(),
+          timestamp: this.getTimeStamp(),
+          event: "event_click",
+          level: "debug",
+          target: e.target.innerHTML,
+          url: href
+        };
         this.appender(data);
       },
       true
@@ -335,15 +351,15 @@ class jsLogger {
       typeof window !== "undefined" && window === null
         ? window.location.host
         : "";
-    let time = new Date(),
-      data = {
-        UUID: uuidv4(),
-        timestamp: time.getTime(),
-        message: "coverage_data",
-        level: "info",
-        host_url: host,
-        coverage_id: ""
-      };
+
+    let data = {
+      UUID: uuidv4(),
+      timestamp: this.getTimeStamp(),
+      event: "coverage_data",
+      level: "info",
+      host_url: host,
+      coverage_id: ""
+    };
     axios("/file_server/upload", {
       method: "POST",
       body: JSON.stringify(window.__coverage__)
@@ -355,6 +371,10 @@ class jsLogger {
       });
 
     return;
+  }
+  getTimeStamp() {
+    let date = new Date();
+    return date.toISOString();
   }
 
   // Time interval for sending logs to url
@@ -368,14 +388,14 @@ class jsLogger {
       info: function (msg) {},
       warn: function (msg) {},
       error: msg => {
-        let time = new Date(),
-          data = {
-            UUID: uuidv4(),
-            timestamp: time.getTime(),
-            message: msg,
-            level: "error",
-            host_url: window.location.host
-          };
+        let data = {
+          UUID: uuidv4(),
+          timestamp: this.getTimeStamp(),
+          event: "Console_Error",
+          data: msg,
+          level: "error",
+          host_url: window.location.host
+        };
 
         this.appender(data);
         return;
